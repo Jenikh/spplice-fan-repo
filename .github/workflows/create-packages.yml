@@ -55,6 +55,10 @@ jobs:
             xz -9e "$archive_path"
 
           done
+      - name: Create or update "latest" tag
+        run: |
+          git tag -f latest
+          git push -f origin latest
 
       - name: Update latest release
         uses: softprops/action-gh-release@v1

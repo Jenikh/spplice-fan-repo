@@ -1,4 +1,4 @@
-name: Create distributable packages
+name: Update ppmod.nut and create packages
 
 on:
   push:
@@ -6,32 +6,56 @@ on:
       - main
 
 jobs:
-  create-archives:
+  update-ppmod-and-release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-
-      - name: Install VPK tools
-        run: pip install vpk
+          fetch-depth: 0  # needed for pushing tags and rebase
 
       - name: Download ppmod.nut into every vscripts folder
         run: |
+          echo "Looking for vscripts folders..."
           find packages -type d -path "*/sources/scripts/vscripts" | while read dir; do
+            echo "Creating folder if missing: $dir"
+            mkdir -p "$dir"
             echo "Downloading ppmod.nut to $dir"
             curl -Ls "https://raw.githubusercontent.com/p2r3/ppmod/main/ppmod.nut" -o "$dir/ppmod.nut"
           done
 
-      - name: Process Packages
+      - name: Verify downloaded ppmod.nut files
+        run: |
+          echo "Listing ppmod.nut files:"
+          find packages -type f -name "ppmod.nut" -exec ls -l {} \;
+          echo "Showing first 10 lines of each ppmod.nut:"
+          find packages -type f -name "ppmod.nut" -exec head -10 {} \;
+
+      - name: Commit and push changes if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git rebase origin/main
+
+          git add packages
+          git diff --quiet && echo "No changes to commit" || git commit -m "Update ppmod.nut in all packages"
+
+          git push origin main
+
+      - name: Create or update "latest" tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -f latest
+          git push -f origin latest
+
+      - name: Create distributable packages
         run: |
           for package_dir in packages/*; do
-
             sources_dir="$package_dir/sources"
             package_name=$(basename "$package_dir")
 
@@ -53,14 +77,9 @@ jobs:
             archive_path="$package_dir/$package_name.tar"
             tar -cf "$archive_path" -C "$sources_dir" .
             xz -9e "$archive_path"
-
           done
-      - name: Create or update "latest" tag
-        run: |
-          git tag -f latest
-          git push -f origin latest
 
-      - name: Update latest release
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: latest

@@ -21,6 +21,13 @@ jobs:
       - name: Install VPK tools
         run: pip install vpk
 
+      - name: Download ppmod.nut into every vscripts folder
+        run: |
+          find packages -type d -path "*/sources/scripts/vscripts" | while read dir; do
+            echo "Downloading ppmod.nut to $dir"
+            curl -Ls "https://raw.githubusercontent.com/p2r3/ppmod/main/ppmod.nut" -o "$dir/ppmod.nut"
+          done
+
       - name: Process Packages
         run: |
           for package_dir in packages/*; do

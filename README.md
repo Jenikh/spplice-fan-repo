@@ -1,5 +1,5 @@
-## The global Spplice package repository
-This is the default repository which [spplice-cpp](https://github.com/p2r3/spplice-cpp) fetches its packages from.
+## The fan made Spplice package repository
+This is the fan made repository which [spplice-cpp](https://github.com/p2r3/spplice-cpp) fetches its packages from if wanted.
 
 Here, the code for each package is available in its raw, unpackaged, uncompressed form. A GitHub Actions workflow is responsible for automatically building VPKs, packaging everything up, and uploading the resulting `tar.xz` files as a release. The repository index and package icons are served through a GitHub Pages deployment.
 

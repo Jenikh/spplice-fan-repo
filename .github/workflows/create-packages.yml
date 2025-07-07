@@ -13,13 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # needed for pushing tags and rebase
+          fetch-depth: 0  # Needed for rebase and tags
 
       - name: Download ppmod.nut into every vscripts folder
         run: |
-          echo "Looking for vscripts folders..."
           find packages -type d -path "*/sources/scripts/vscripts" | while read dir; do
-            echo "Creating folder if missing: $dir"
             mkdir -p "$dir"
             echo "Downloading ppmod.nut to $dir"
             curl -Ls "https://raw.githubusercontent.com/p2r3/ppmod/main/ppmod.nut" -o "$dir/ppmod.nut"
@@ -41,9 +39,13 @@ jobs:
           git rebase origin/main
 
           git add packages
-          git diff --quiet && echo "No changes to commit" || git commit -m "Update ppmod.nut in all packages"
 
-          git push origin main
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update ppmod.nut in all packages"
+            git push origin main
+          fi
 
       - name: Create or update "latest" tag
         run: |

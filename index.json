@@ -6,7 +6,7 @@
       "description": "This is an example package\nAnd it has multiple lines",
       "version": "1.0.0",
       "args": [],
-      "file": "https://github.com/JenikH/spplice-fan-repo/releases/download/latest/example.tar.xz",
+      "file": "https://github.com/Jenikh/spplice-fan-repo/releases/download/latest/example.tar.xz",
       "icon": "http://jenikh.github.io/spplice-fan-repo/packages/example/icon.png"
     }
   ]
